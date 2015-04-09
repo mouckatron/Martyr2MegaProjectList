@@ -34,37 +34,50 @@ alphabet = {
 'y': ['y', 'z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x'],
 'z': ['z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y'],
 }
-if '--key' not in sys.argv:
-    raise NameError("--key not set")
-keyword = sys.argv[(sys.argv.index('--key')+1)]
-kwl = len(keyword)-1
 
-if '--enc' in sys.argv:
-    cleartext = sys.stdin.read().strip()
+def encode(key, cleartext):
     kwi = 0  # keyword index
+    kwl = len(key)-1
+    ciphertext = []
     for x in cleartext:
         if x.lower() in ascii_lowercase:
-            c = alphabet[keyword[kwi]][alphabetindex[x.lower()]]
+            c = alphabet[key[kwi]][alphabetindex[x.lower()]]
             if x != x.lower():
                 c = c.upper()
-            sys.stdout.write(c)
+            ciphertext.append(c)
             # increment the keyword index
             kwi = 0 if kwi == kwl else kwi +1
         else:
             # not an alphabetical character, just output it
-            sys.stdout.write(x)
-    
-elif '--dec' in sys.argv:
-    ciphertext = sys.stdin.read().strip()
+            ciphertext.append(x)
+    return ''.join(ciphertext)
+
+def decode(key, ciphertext):
     kwi = 0  # keyword index
+    kwl = len(key)-1
+    cleartext = []
     for x in ciphertext:
         if x.lower() in ascii_lowercase:
-            c = numberindex[alphabet[keyword[kwi]].index(x.lower())]
+            c = numberindex[alphabet[key[kwi]].index(x.lower())]
             if x != x.lower():
                 c = c.upper()
-            sys.stdout.write(c)
+            cleartext.append(c)
             # increment the keyword index
             kwi = 0 if kwi == kwl else kwi +1
         else:
             # not an alphabetical character, just output it
-            sys.stdout.write(x)
+            cleartext.append(x)
+    return ''.join(cleartext)    
+
+if __name__ == '__main__':
+    if '--key' not in sys.argv:
+        raise NameError("--key not set")
+    keyword = sys.argv[(sys.argv.index('--key')+1)]
+    
+    if '--enc' in sys.argv:
+        cleartext = sys.stdin.read().strip()
+        sys.stdout.write(encode(keyword, cleartext))
+    
+    elif '--dec' in sys.argv:
+        ciphertext = sys.stdin.read().strip()
+        sys.stdout.write(decode(keyword, ciphertext))
